@@ -8,6 +8,8 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import { IconButton } from "./ components/IconButton";
 import Fuse from "fuse.js";
 
+
+
 const shops = [
   { id: 1, name: "Gratis" },
   { id: 2, name: "Mac" },
@@ -92,7 +94,9 @@ function App() {
 
   return (
     <>
+
       <Container>
+      <h1 className="mt-3 text-center text-white">Shopping List</h1>
         <Form>
           <Form.Group className="mb-3 mt-5" controlId="formBasicEmail">
             <Form.Control
@@ -190,7 +194,7 @@ function App() {
               </option>
             ))}
           </Form.Select>
-          <Form.Group
+          <Form.Group className="mt-4 text-white"
             onChange={(e) => {
               const value = e.target.value;
               setradioFilter(
@@ -225,7 +229,7 @@ function App() {
           </Form.Group>
         </Form>
       </Container>
-      <Container>
+      <Container className="mt-4">
         <Table>
           <thead>
             <tr>
