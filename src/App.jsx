@@ -30,7 +30,7 @@ function App() {
   const [filterName, setFilterName] = useState("");
   const [shopFilter, setFiltershop] = useState("");
   const [katagoriFilter, setkatagoriFilter] = useState("");
-  const [radioFilter, setradioFilter] = useState("");
+  const [radioFilter, setradioFilter] = useState("resetall");
   function addProduct() {
     if (productName && productShop && productkatagori) {
       const product = {
@@ -64,20 +64,15 @@ function App() {
       result = false;
     }
     if (
-      radioFilter !== "resetall" &&
-      ((product.isBought === true && radioFilter !== true) ||
-        (product.isBought === undefined && radioFilter === true))
-    ) {
-      result=false
-    }
-
+      radioFilter!=="resetall"&& (product.isBought||false)!==(radioFilter===true)
+    
+    )
+    {result=false}
     return result;
+    
   });
 
- 
-
   function lineProduct(id) {
-
     const updatedProducts = products.map((product) => {
       if (product.id === id) {
         return {
@@ -88,13 +83,13 @@ function App() {
         return product;
       }
     });
-   
+
     setProducts(updatedProducts);
   }
   function deleteProduct(id) {
     setProducts(products.filter((product) => product.id !== id));
   }
-  
+
   return (
     <>
       <Container>
@@ -195,10 +190,14 @@ function App() {
               </option>
             ))}
           </Form.Select>
-          <Form.Group onChange={(e)=>{
-            const value =e.target.value
-            setradioFilter(value==="resetall"? value:value==="true"? true:false)
-          }}>
+          <Form.Group
+            onChange={(e) => {
+              const value = e.target.value;
+              setradioFilter(
+                value === "resetall" ? value : value === "true" ? true : false
+              );
+            }}
+          >
             <Form.Check
               inline
               type="radio"
@@ -233,8 +232,8 @@ function App() {
               <th>Ürün ismi</th>
               <th>Mağaza</th>
               <th>Kategori</th>
-              <th>id</th>
-              <th>Delete</th>
+              <th>Durum</th>
+              <th>Sil</th>
             </tr>
           </thead>
           <tbody>
@@ -244,7 +243,7 @@ function App() {
                 style={{
                   textDecoration: product.isBought ? "line-through" : "none",
                 }}
-              onClick={() => lineProduct(product.id)}
+                onClick={() => lineProduct(product.id)}
               >
                 <td>{product.name}</td>
                 <td>
@@ -262,15 +261,9 @@ function App() {
                 </td>
                 <td>{product.id}</td>
                 <td>
-                <IconButton
-                  handleclick={
-              
-                    () => deleteProduct(product.id)
-                  }
-                />
+                  <IconButton handleclick={() => deleteProduct(product.id)} />
                 </td>
               </tr>
-              
             ))}
           </tbody>
         </Table>
