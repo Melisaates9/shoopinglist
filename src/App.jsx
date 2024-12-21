@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { IconButton } from "./ components/IconButton";
+import Fuse from "fuse.js";
 
 const shops = [
   { id: 1, name: "Gratis" },
@@ -24,17 +25,12 @@ function App() {
   const [productName, setProductName] = useState("");
   const [productShop, setProductShop] = useState("");
   const [productkatagori, setProductkategori] = useState("");
-// konfeti yeniden bakılcak halldemedik
+  // konfeti yeniden bakılcak halldemedik
   const { width, height } = useWindowSize();
-  const [filterName,setFilterName] =useState("")
-  const [shopFilter,setFiltershop] =useState("")
-  const [katagoriFilter,setkatagoriFilter] =useState("")
-  const[radioFilter,setradioFilter]=useState("")
-  const filteredProducts = products.filter ((product)=>{ 
-    
-
-  })
-
+  const [filterName, setFilterName] = useState("");
+  const [shopFilter, setFiltershop] = useState("");
+  const [katagoriFilter, setkatagoriFilter] = useState("");
+  const [radioFilter, setradioFilter] = useState("");
   function addProduct() {
     if (productName && productShop && productkatagori) {
       const product = {
@@ -52,9 +48,36 @@ function App() {
     setProductShop("");
     setProductkategori("");
   }
+  const filteredProducts = products.filter((product) => {
+    let result = true;
+    const fuse = new Fuse(products, {
+      keys: ["name"],
+    });
+    const search = fuse.search(filterName);
+    if (filterName !== "" && !search.find((r) => r.item.id === product.id)) {
+      result = false;
+    }
+    if (shopFilter !== "" && product.shop !== shopFilter) {
+      result = false;
+    }
+    if (katagoriFilter !== "" && product.kategori !== katagoriFilter) {
+      result = false;
+    }
+    if (
+      radioFilter !== "resetall" &&
+      ((product.isBought === true && radioFilter !== true) ||
+        (product.isBought === undefined && radioFilter === true))
+    ) {
+      result=false
+    }
 
+    return result;
+  });
+
+ 
 
   function lineProduct(id) {
+
     const updatedProducts = products.map((product) => {
       if (product.id === id) {
         return {
@@ -65,17 +88,13 @@ function App() {
         return product;
       }
     });
-    if (
-      updatedProducts.every((updatedProduct) =>
-        Boolean(updatedProduct.isBought)
-      )
-    ) {
-      <Confetti width={width} height={height} />;
-      alert("Siparişiniz Tamamlandı");
-    }
+   
     setProducts(updatedProducts);
   }
-
+  function deleteProduct(id) {
+    setProducts(products.filter((product) => product.id !== id));
+  }
+  
   return (
     <>
       <Container>
@@ -127,15 +146,11 @@ function App() {
               className="mt-5 btn-light border-2 border-black "
               onClick={addProduct}
             >
-            
               Ürünü Ekle
             </Button>
           </div>
         </Form>
       </Container>
- 
-
-
 
       <Container>
         <Form>
@@ -151,7 +166,6 @@ function App() {
           </Form.Group>
 
           <Form.Select
-
             aria-label="Default select example"
             value={shopFilter}
             onChange={(e) => {
@@ -181,36 +195,35 @@ function App() {
               </option>
             ))}
           </Form.Select>
-          <Form>
-        <Form.Check
-          inline
-          type="radio"
-          label="Tümü"
-          name="Group"
-          value="resetall"
-          id="all"
-         
-        />
-        <Form.Check
-          inline
-          type="radio"
-          label="Satın alınanlar"
-          name="Group"
-          value="true"
-          id="bought"
-          
-         
-        />
-        <Form.Check
-          inline
-          type="radio"
-          label="Satın alınmayanlar"
-          name="Group"
-          id="unpurchased"
-         value="false"
-        />
-      </Form>
-
+          <Form.Group onChange={(e)=>{
+            const value =e.target.value
+            setradioFilter(value==="resetall"? value:value==="true"? true:false)
+          }}>
+            <Form.Check
+              inline
+              type="radio"
+              label="Tümü"
+              name="Group"
+              value="resetall"
+              id="all"
+            />
+            <Form.Check
+              inline
+              type="radio"
+              label="Satın alınanlar"
+              name="Group"
+              value="true"
+              id="bought"
+            />
+            <Form.Check
+              inline
+              type="radio"
+              label="Satın alınmayanlar"
+              name="Group"
+              id="unpurchased"
+              value="false"
+            />
+          </Form.Group>
         </Form>
       </Container>
       <Container>
@@ -225,14 +238,13 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <tr
                 key={product.id}
-
                 style={{
                   textDecoration: product.isBought ? "line-through" : "none",
                 }}
-                onClick={() => lineProduct(product.id)}
+              onClick={() => lineProduct(product.id)}
               >
                 <td>{product.name}</td>
                 <td>
@@ -249,9 +261,16 @@ function App() {
                   }
                 </td>
                 <td>{product.id}</td>
-  <IconButton handleclick= {()=>{setProducts(products.filter((product)=>product.id!==product.id))}}  />
+                <td>
+                <IconButton
+                  handleclick={
+              
+                    () => deleteProduct(product.id)
+                  }
+                />
+                </td>
               </tr>
-
+              
             ))}
           </tbody>
         </Table>
