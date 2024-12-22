@@ -116,7 +116,7 @@ function App() {
               setProductShop(e.target.value);
             }}
           >
-            <option>Chose youre shop </option>
+            <option>Choose youre shop </option>
             {shops.map((shop) => (
               <option key={shop.id} value={shop.id}>
                 {shop.name}
@@ -171,7 +171,7 @@ function App() {
               setFiltershop(e.target.value);
             }}
           >
-            <option>Chose youre shop </option>
+            <option>Choose youre shop </option>
             {shops.map((shop) => (
               <option key={shop.id} value={shop.id}>
                 {shop.name}
